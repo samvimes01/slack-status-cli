@@ -53,7 +53,7 @@ func RunReturnWorker(token, pidPath string) {
 	time.Sleep(1 * time.Hour)
 
 	expiration := todaySixPM()
-	if err := SetStatus(token, "Working remote", ":house_with_garden:", expiration); err != nil {
+	if err := SetStatus(token, "Working remotely", ":computer:", expiration); err != nil {
 		fmt.Fprintf(os.Stderr, "return-worker: set status: %v\n", err)
 	}
 

@@ -6,7 +6,7 @@ CLI tool to quickly switch your Slack status for common work scenarios.
 
 | Command              | Status         | Emoji | Expires                               |
 | -------------------- | -------------- | ----- | ------------------------------------- |
-| `slack-status work`  | Working remote | 💻    | Today 6pm                             |
+| `slack-status work`  | Working remotely | 💻    | Today 6pm                             |
 | `slack-status lunch` | Lunch          | 🍔    | +1 hour, then auto-restores to "work" |
 | `slack-status clear` | _(cleared)_    | —     | —                                     |
 
@@ -77,14 +77,14 @@ mv slack-status /usr/local/bin/
 
 ```bash
 slack-status login   # Authenticate with Slack
-slack-status work    # Working remote until 6pm
+slack-status work    # Working remotely until 6pm
 slack-status lunch   # Lunch for 1h, auto-returns to "work" status after
 slack-status clear   # Clear status entirely
 ```
 
 ## How the Lunch Auto-Return Works
 
-`slack-status lunch` spawns a detached background process (`_return-worker`) that sleeps for 1 hour, then restores your "Working remote" status. The worker's PID is stored at `~/.local/state/slack-status/worker.pid`.
+`slack-status lunch` spawns a detached background process (`_return-worker`) that sleeps for 1 hour, then restores your "Working remotely" status. The worker's PID is stored at `~/.local/state/slack-status/worker.pid`.
 
 Running `slack-status work` or `slack-status clear` cancels any pending worker.
 

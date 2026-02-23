@@ -35,14 +35,15 @@ func main() {
 	}
 
 	switch cmd {
-	case "work":
-		KillWorker(paths.PIDFile)
-		expiration := todaySixPM()
-		if err := SetStatus(cfg.Token, "Working remote", ":computer:", expiration); err != nil {
-			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+	case "start":
+		work(cfg.Token, paths)
+		if err := PostMessage(cfg.Token, "#remote_work", ":wave:"); err != nil {
+			fmt.Fprintf(os.Stderr, "error sending message: %v\n", err)
 			os.Exit(1)
 		}
-		fmt.Println("Status set: Working remote (until 6pm)")
+
+	case "work":
+		work(cfg.Token, paths)
 
 	case "lunch":
 		KillWorker(paths.PIDFile)
@@ -63,7 +64,7 @@ func main() {
 		returnAt := now.Add(1 * time.Hour)
 		fmt.Printf("Status set: Lunch\n")
 		fmt.Printf("  Started:  %s\n", now.Format("Mon Jan 2, 3:04 PM"))
-		fmt.Printf("  Returns:  %s (Working remote)\n", returnAt.Format("Mon Jan 2, 3:04 PM"))
+		fmt.Printf("  Returns:  %s (Working remotely)\n", returnAt.Format("Mon Jan 2, 3:04 PM"))
 
 	case "clear":
 		KillWorker(paths.PIDFile)
@@ -129,11 +130,22 @@ func runLogin(paths Paths) error {
 	return nil
 }
 
+func work(token string, paths Paths) {
+	KillWorker(paths.PIDFile)
+	expiration := todaySixPM()
+	if err := SetStatus(token, "Working remotely", ":computer:", expiration); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Println("Status set: Working remotely (until 6pm)")
+}
+
 func usage() {
 	fmt.Fprintln(os.Stderr, "Usage: slack-status <command>")
 	fmt.Fprintln(os.Stderr, "Commands:")
 	fmt.Fprintln(os.Stderr, "  login  Authenticate with Slack")
-	fmt.Fprintln(os.Stderr, "  work   Set status to 'Working remote' until 6pm today")
+	fmt.Fprintln(os.Stderr, "  start  Set status to 'Working remotely' until 6pm today, and sends a message to #remote_work")
+	fmt.Fprintln(os.Stderr, "  work   Set status to 'Working remotely' until 6pm today")
 	fmt.Fprintln(os.Stderr, "  lunch  Set status to 'Lunch' for 1 hour, then auto-restore")
 	fmt.Fprintln(os.Stderr, "  clear  Clear status")
 }

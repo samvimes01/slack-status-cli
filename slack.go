@@ -8,7 +8,10 @@ import (
 	"net/http"
 )
 
-const slackProfileURL = "https://slack.com/api/users.profile.set"
+const (
+	slackProfileURL    = "https://slack.com/api/users.profile.set"
+	slackPostMessageURL = "https://slack.com/api/chat.postMessage"
+)
 
 type statusProfile struct {
 	StatusText       string `json:"status_text"`
@@ -45,6 +48,47 @@ func ClearStatus(token string) error {
 		},
 	}
 	return doProfileSet(token, body)
+}
+
+type postMessageRequest struct {
+	Channel string `json:"channel"`
+	Text    string `json:"text"`
+}
+
+func PostMessage(token, channel, text string) error {
+	payload, err := json.Marshal(postMessageRequest{Channel: channel, Text: text})
+	if err != nil {
+		return fmt.Errorf("marshaling request: %w", err)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, slackPostMessageURL, bytes.NewReader(payload))
+	if err != nil {
+		return fmt.Errorf("creating request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("sending request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("reading response: %w", err)
+	}
+
+	var slackResp slackResponse
+	if err := json.Unmarshal(respBody, &slackResp); err != nil {
+		return fmt.Errorf("parsing response: %w", err)
+	}
+
+	if !slackResp.OK {
+		return fmt.Errorf("slack API error: %s", slackResp.Error)
+	}
+
+	return nil
 }
 
 func doProfileSet(token string, body profileSetRequest) error {
