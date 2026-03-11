@@ -1,0 +1,214 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+	A10000010000000100000001 /* SlackStatusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000100000001 /* SlackStatusApp.swift */; };
+	A10000010000000100000002 /* AppModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000100000002 /* AppModels.swift */; };
+	A10000010000000100000003 /* CLIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000100000003 /* CLIService.swift */; };
+	A10000010000000100000004 /* StatusItemController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000100000004 /* StatusItemController.swift */; };
+	A10000010000000100000006 /* StatusViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000100000006 /* StatusViewModel.swift */; };
+	A10000010000000100000007 /* PopoverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000100000007 /* PopoverViewController.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+	A20000010000000100000001 /* SlackStatusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlackStatusApp.swift; sourceTree = "<group>"; };
+	A20000010000000100000002 /* AppModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModels.swift; sourceTree = "<group>"; };
+	A20000010000000100000003 /* CLIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIService.swift; sourceTree = "<group>"; };
+	A20000010000000100000004 /* StatusItemController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemController.swift; sourceTree = "<group>"; };
+	A20000010000000100000006 /* StatusViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusViewModel.swift; sourceTree = "<group>"; };
+	A20000010000000100000007 /* PopoverViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverViewController.swift; sourceTree = "<group>"; };
+	A20000010000000100000008 /* SlackStatusApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SlackStatusApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+	A30000010000000100000001 /* Frameworks */ = {
+		isa = PBXFrameworksBuildPhase;
+		buildActionMask = 2147483647;
+		files = (
+		);
+		runOnlyForDeploymentPostprocessing = 0;
+	};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+	A40000010000000100000001 = {
+		isa = PBXGroup;
+		children = (
+			A40000010000000100000002 /* SlackStatusApp */,
+			A40000010000000100000003 /* Products */,
+		);
+		sourceTree = "<group>";
+	};
+	A40000010000000100000002 /* SlackStatusApp */ = {
+		isa = PBXGroup;
+		path = SlackStatusApp;
+		sourceTree = "<group>";
+		children = (
+			A20000010000000100000001 /* SlackStatusApp.swift */,
+			A20000010000000100000002 /* AppModels.swift */,
+			A20000010000000100000003 /* CLIService.swift */,
+			A20000010000000100000004 /* StatusItemController.swift */,
+			A20000010000000100000006 /* StatusViewModel.swift */,
+			A20000010000000100000007 /* PopoverViewController.swift */,
+		);
+	};
+	A40000010000000100000003 /* Products */ = {
+		isa = PBXGroup;
+		children = (
+			A20000010000000100000008 /* SlackStatusApp.app */,
+		);
+		sourceTree = "<group>";
+	};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+	A50000010000000100000001 /* SlackStatusApp */ = {
+		isa = PBXNativeTarget;
+		buildConfigurationList = A70000010000000100000001 /* Build configuration list for PBXNativeTarget \"SlackStatusApp\" */;
+		buildPhases = (
+			A60000010000000100000001 /* Sources */,
+			A30000010000000100000001 /* Frameworks */,
+		);
+		buildRules = (
+		);
+		dependencies = (
+		);
+		name = SlackStatusApp;
+		productName = SlackStatusApp;
+		productReference = A20000010000000100000008 /* SlackStatusApp.app */;
+		productType = "com.apple.product-type.application";
+	};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+	A80000010000000100000001 /* Project object */ = {
+		isa = PBXProject;
+		attributes = {
+			BuildIndependentTargetsInParallel = 1;
+			LastSwiftUpdateCheck = 1600;
+			LastUpgradeCheck = 1600;
+			TargetAttributes = {
+				A50000010000000100000001 = {
+					CreatedOnToolsVersion = 16.0;
+				};
+			};
+		};
+		buildConfigurationList = A70000010000000100000002 /* Build configuration list for PBXProject \"SlackStatusApp\" */;
+		compatibilityVersion = "Xcode 14.0";
+		developmentRegion = en;
+		hasScannedForEncodings = 0;
+		knownRegions = (
+			en,
+			Base,
+		);
+		mainGroup = A40000010000000100000001;
+		productRefGroup = A40000010000000100000003 /* Products */;
+		projectDirPath = "";
+		projectRoot = "";
+		targets = (
+			A50000010000000100000001 /* SlackStatusApp */,
+		);
+	};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+	A60000010000000100000001 /* Sources */ = {
+		isa = PBXSourcesBuildPhase;
+		buildActionMask = 2147483647;
+		files = (
+			A10000010000000100000001 /* SlackStatusApp.swift in Sources */,
+			A10000010000000100000002 /* AppModels.swift in Sources */,
+			A10000010000000100000003 /* CLIService.swift in Sources */,
+			A10000010000000100000004 /* StatusItemController.swift in Sources */,
+			A10000010000000100000006 /* StatusViewModel.swift in Sources */,
+			A10000010000000100000007 /* PopoverViewController.swift in Sources */,
+		);
+		runOnlyForDeploymentPostprocessing = 0;
+	};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+	A90000010000000100000001 /* Debug */ = {
+		isa = XCBuildConfiguration;
+		buildSettings = {
+			ALWAYS_SEARCH_USER_PATHS = NO;
+			CLANG_ENABLE_MODULES = YES;
+			CLANG_ENABLE_OBJC_ARC = YES;
+			CODE_SIGN_STYLE = Automatic;
+			COMBINE_HIDPI_IMAGES = YES;
+			CURRENT_PROJECT_VERSION = 1;
+			GENERATE_INFOPLIST_FILE = YES;
+			INFOPLIST_KEY_CFBundleDisplayName = SlackStatusApp;
+			INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+			INFOPLIST_KEY_LSUIElement = YES;
+			LD_RUNPATH_SEARCH_PATHS = (
+				"$(inherited)",
+				"@executable_path/../Frameworks",
+			);
+			MACOSX_DEPLOYMENT_TARGET = 13.0;
+			MARKETING_VERSION = 0.1.0;
+			PRODUCT_BUNDLE_IDENTIFIER = local.slackstatus.macos;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SDKROOT = macosx;
+			SWIFT_EMIT_LOC_STRINGS = YES;
+			SWIFT_VERSION = 5.0;
+		};
+		name = Debug;
+	};
+	A90000010000000100000002 /* Release */ = {
+		isa = XCBuildConfiguration;
+		buildSettings = {
+			ALWAYS_SEARCH_USER_PATHS = NO;
+			CLANG_ENABLE_MODULES = YES;
+			CLANG_ENABLE_OBJC_ARC = YES;
+			CODE_SIGN_STYLE = Automatic;
+			COMBINE_HIDPI_IMAGES = YES;
+			CURRENT_PROJECT_VERSION = 1;
+			GENERATE_INFOPLIST_FILE = YES;
+			INFOPLIST_KEY_CFBundleDisplayName = SlackStatusApp;
+			INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+			INFOPLIST_KEY_LSUIElement = YES;
+			LD_RUNPATH_SEARCH_PATHS = (
+				"$(inherited)",
+				"@executable_path/../Frameworks",
+			);
+			MACOSX_DEPLOYMENT_TARGET = 13.0;
+			MARKETING_VERSION = 0.1.0;
+			PRODUCT_BUNDLE_IDENTIFIER = local.slackstatus.macos;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SDKROOT = macosx;
+			SWIFT_EMIT_LOC_STRINGS = YES;
+			SWIFT_VERSION = 5.0;
+		};
+		name = Release;
+	};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+	A70000010000000100000001 /* Build configuration list for PBXNativeTarget "SlackStatusApp" */ = {
+		isa = XCConfigurationList;
+		buildConfigurations = (
+			A90000010000000100000001 /* Debug */,
+			A90000010000000100000002 /* Release */,
+		);
+		defaultConfigurationIsVisible = 0;
+		defaultConfigurationName = Debug;
+	};
+	A70000010000000100000002 /* Build configuration list for PBXProject "SlackStatusApp" */ = {
+		isa = XCConfigurationList;
+		buildConfigurations = (
+			A90000010000000100000001 /* Debug */,
+			A90000010000000100000002 /* Release */,
+		);
+		defaultConfigurationIsVisible = 0;
+		defaultConfigurationName = Debug;
+	};
+/* End XCConfigurationList section */
+	};
+	rootObject = A80000010000000100000001 /* Project object */;
+}

@@ -6,8 +6,9 @@ CLI tool to quickly switch your Slack status for common work scenarios.
 
 | Command              | Status         | Emoji | Expires                               |
 | -------------------- | -------------- | ----- | ------------------------------------- |
-| `slack-status work`  | Working remotely | 💻    | Today 6pm                             |
-| `slack-status lunch` | Lunch          | 🍔    | +1 hour, then auto-restores to "work" |
+| `slack-status work`  | Working remotely | 💻    | Today 6pm by default, or `--until`    |
+| `slack-status start` | Working remotely | 💻    | Today 6pm by default, or `--until`; posts `:wave:` once per local calendar day |
+| `slack-status lunch` | Lunch          | 🍔    | +1 hour by default, or `--until`, then auto-restores to "work" |
 | `slack-status clear` | _(cleared)_    | —     | —                                     |
 
 ## Setup
@@ -67,6 +68,15 @@ Copy the app id from the URL <https://api.slack.com/apps/APP_ID/> and paste it i
 make init # Only once, creates .env
 make install
 
+# Build the macOS menu bar app scaffold:
+make macos-build
+
+# Launch the built macOS menu bar app:
+make macos-open
+
+# Build and run the macOS menu bar app directly:
+make macos-run
+
 # Or build and move manually:
 go build -o slack-status
 # Move to somewhere on your PATH, e.g.:
@@ -78,15 +88,23 @@ mv slack-status /usr/local/bin/
 ```bash
 slack-status login   # Authenticate with Slack
 slack-status work    # Working remotely until 6pm
+slack-status work --until 17:30
+slack-status start   # Working remotely until 6pm and posts :wave: once per day
+slack-status start --until "2026-03-11 18:00"
 slack-status lunch   # Lunch for 1h, auto-returns to "work" status after
+slack-status lunch --until 14:30
 slack-status clear   # Clear status entirely
 ```
 
+`--until` accepts a local-time `HH:MM`, `YYYY-MM-DD HH:MM`, `YYYY-MM-DDTHH:MM`, or full RFC3339 timestamp. For `HH:MM`, the CLI uses the next occurrence of that time.
+
+`slack-status start` is enforced by the backend as a once-per-local-calendar-day action. The shared state file records whether Start is still available today, plus the timestamp/day of the last successful Start, so the macOS menu bar app can reflect the backend authority without duplicating the rule.
+
 ## How the Lunch Auto-Return Works
 
-`slack-status lunch` spawns a detached background process (`_return-worker`) that sleeps for 1 hour, then restores your "Working remotely" status. The worker's PID is stored at `~/.local/state/slack-status/worker.pid`.
+`slack-status lunch` spawns a detached background process (`_return-worker`) that sleeps until the chosen return time, then restores your "Working remotely" status. Without `--until`, it defaults to 1 hour from now. The worker's PID is stored at `~/.local/state/slack-status/worker.pid`.
 
-Running `slack-status work` or `slack-status clear` cancels any pending worker.
+Running `slack-status work`, `slack-status start`, or `slack-status clear` cancels any pending worker.
 
 ## XDG Path Overrides
 
