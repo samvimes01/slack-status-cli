@@ -1,2 +1,6 @@
 slack-status
+slack-status-universal
 .env
+macos/build/
+dist/
+*.dmg
