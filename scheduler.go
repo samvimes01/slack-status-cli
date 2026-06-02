@@ -11,8 +11,16 @@ import (
 	"time"
 )
 
+// workerArgs builds the argument list for the detached return worker.
+// The --until flag must precede the _return-worker subcommand: parseOptions
+// uses the flag package, which stops parsing at the first non-flag argument,
+// so a flag placed after the subcommand would be silently ignored.
+func workerArgs(returnAt time.Time) []string {
+	return []string{"--until", returnAt.Format(time.RFC3339), "_return-worker"}
+}
+
 func SpawnReturnWorker(binaryPath, pidPath string, returnAt time.Time) (int, error) {
-	cmd := exec.Command(binaryPath, "_return-worker", "--until", returnAt.Format(time.RFC3339))
+	cmd := exec.Command(binaryPath, workerArgs(returnAt)...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Setsid: true, // detach from terminal
 	}
