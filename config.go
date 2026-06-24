@@ -45,6 +45,7 @@ type LocalState struct {
 	StartAvailableToday bool        `json:"start_available_today"`
 	LastStartAt         string      `json:"last_start_at,omitempty"`
 	LastStartDay        string      `json:"last_start_day,omitempty"`
+	WorkDayEndsAt       string      `json:"work_day_ends_at,omitempty"`
 	UpdatedAt           string      `json:"updated_at"`
 }
 

@@ -69,17 +69,19 @@ func RunReturnWorker(token string, paths Paths) {
 		time.Sleep(sleepDuration)
 	}
 
-	expiration := todaySixPM()
+	now := time.Now()
+	priorState := preservedStartState(paths)
+	expiration := resolveWorkDayEnd(priorState, now)
 	if err := SetStatus(token, "Working remotely", ":computer:", expiration); err != nil {
 		fmt.Fprintf(os.Stderr, "return-worker: set status: %v\n", err)
 	} else {
-		priorState := preservedStartState(paths)
 		state := withDerivedState(LocalState{
 			CurrentStatus: workingStatusState("worker", expiration),
 			LastStartAt:   priorState.LastStartAt,
 			LastStartDay:  priorState.LastStartDay,
-			UpdatedAt:     time.Now().Format(time.RFC3339),
-		}, time.Now())
+			WorkDayEndsAt: time.Unix(expiration, 0).Format(time.RFC3339),
+			UpdatedAt:     now.Format(time.RFC3339),
+		}, now)
 		if err := SaveLocalState(paths, state); err != nil {
 			fmt.Fprintf(os.Stderr, "return-worker: save state: %v\n", err)
 		}

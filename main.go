@@ -116,26 +116,42 @@ type commandResult struct {
 }
 
 func parseOptions(args []string) (options, error) {
-	args = normalizeJSONFlag(args)
+	command, flagArgs := splitCommand(args)
 	fs := flag.NewFlagSet("slack-status", flag.ContinueOnError)
 	fs.SetOutput(os.Stderr)
 	jsonMode := fs.Bool("json", false, "output machine-readable JSON")
 	until := fs.String("until", "", "expiration time for start/work, e.g. 18:00 or 2026-03-11T18:00")
-	if err := fs.Parse(args); err != nil {
+	if err := fs.Parse(flagArgs); err != nil {
 		return options{}, err
 	}
-	rest := fs.Args()
-	if len(rest) == 0 {
-		return options{JSON: *jsonMode, Until: *until}, nil
-	}
-	return options{Command: rest[0], JSON: *jsonMode, Until: *until}, nil
+	return options{Command: command, JSON: *jsonMode, Until: *until}, nil
 }
 
-func normalizeJSONFlag(args []string) []string {
-	if len(args) >= 2 && args[1] == "--json" {
-		return []string{"--json", args[0:1][0]}
+// splitCommand pulls the first positional (non-flag) argument out as the
+// subcommand and returns the remaining tokens as flag arguments. This lets
+// flags appear either before or after the command — both "--until 18:00 work"
+// and "work --until 18:00" parse identically. Without this, the flag package
+// stops at the first non-flag token (the command) and silently drops any flag
+// placed after it.
+func splitCommand(args []string) (string, []string) {
+	// Flags that consume the following token as their value, so we don't mistake
+	// that value for the subcommand (e.g. the "16:47" in "--until 16:47 work").
+	valueFlags := map[string]bool{"--until": true, "-until": true}
+	command := ""
+	flagArgs := []string{}
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		if command == "" && !strings.HasPrefix(arg, "-") {
+			command = arg
+			continue
+		}
+		flagArgs = append(flagArgs, arg)
+		if valueFlags[arg] && i+1 < len(args) {
+			i++
+			flagArgs = append(flagArgs, args[i])
+		}
 	}
-	return args
+	return command, flagArgs
 }
 
 func printJSON(v any) {
@@ -196,7 +212,11 @@ func runLogin(paths Paths) error {
 func runWork(token string, paths Paths, postMessage bool, until string) (commandResult, error) {
 	KillWorker(paths.PIDFile)
 	now := time.Now()
-	expirationTime, err := resolveWorkExpiration(now, postMessage, until)
+	priorState, err := loadOrDefaultState(paths)
+	if err != nil {
+		return commandResult{}, err
+	}
+	expirationTime, err := resolveWorkExpiration(now, postMessage, until, priorState)
 	if err != nil {
 		return commandResult{}, err
 	}
@@ -204,7 +224,13 @@ func runWork(token string, paths Paths, postMessage bool, until string) (command
 	if err := SetStatus(token, "Working remotely", ":computer:", expiration); err != nil {
 		return commandResult{}, err
 	}
-	state := withDerivedState(LocalState{CurrentStatus: workingStatusState("cli", expiration), UpdatedAt: now.Format(time.RFC3339)}, now)
+	state := withDerivedState(LocalState{
+		CurrentStatus: workingStatusState("cli", expiration),
+		LastStartAt:   priorState.LastStartAt,
+		LastStartDay:  priorState.LastStartDay,
+		WorkDayEndsAt: expirationTime.Format(time.RFC3339),
+		UpdatedAt:     now.Format(time.RFC3339),
+	}, now)
 	if err := SaveLocalState(paths, state); err != nil {
 		return commandResult{}, err
 	}
@@ -281,6 +307,7 @@ func runLunch(token string, paths Paths, until string) (commandResult, error) {
 		WorkerPID:       workerPID,
 		LastStartAt:     priorState.LastStartAt,
 		LastStartDay:    priorState.LastStartDay,
+		WorkDayEndsAt:   priorState.WorkDayEndsAt,
 		UpdatedAt:       now.Format(time.RFC3339),
 	}, now)
 	if err := SaveLocalState(paths, state); err != nil {
@@ -343,8 +370,8 @@ func usage() {
 	fmt.Fprintln(os.Stderr, "Commands:")
 	fmt.Fprintln(os.Stderr, "  login  Authenticate with Slack")
 	fmt.Fprintln(os.Stderr, "  start  Set status to 'Working remotely' for 9 hours by default, and sends a message to #remote_work")
-	fmt.Fprintln(os.Stderr, "  work   Set status to 'Working remotely' until 6pm today by default")
-	fmt.Fprintln(os.Stderr, "  lunch  Set status to 'Lunch' for 1 hour by default, or until --until, then auto-restore")
+	fmt.Fprintln(os.Stderr, "  work   Set status to 'Working remotely' until today's recorded work-day end, else 6pm")
+	fmt.Fprintln(os.Stderr, "  lunch  Set status to 'Lunch' for 1 hour by default, or until --until, then auto-restore work until the day's end (from start/work, else 6pm)")
 	fmt.Fprintln(os.Stderr, "  clear  Clear status")
 	fmt.Fprintln(os.Stderr, "  status Print machine-readable local state")
 	fmt.Fprintln(os.Stderr, "Options:")
@@ -358,11 +385,6 @@ func openBrowser(url string) {
 	exec.CommandContext(ctx, "open", url).Run()
 }
 
-func todaySixPM() int64 {
-	now := time.Now()
-	return todaySixPMAt(now).Unix()
-}
-
 func todaySixPMAt(now time.Time) time.Time {
 	sixPM := time.Date(now.Year(), now.Month(), now.Day(), 18, 0, 0, 0, now.Location())
 	if now.After(sixPM) {
@@ -371,14 +393,30 @@ func todaySixPMAt(now time.Time) time.Time {
 	return sixPM
 }
 
-func resolveWorkExpiration(now time.Time, postMessage bool, until string) (time.Time, error) {
+// resolveWorkDayEnd returns the Unix expiration to restore work status to after
+// lunch. It prefers the work-day end recorded by the most recent start/work
+// command (so a 10am start restores to 7pm, not a hardcoded 6pm). If no usable
+// end time is stored — empty, unparseable, or already in the past — it falls
+// back to today's 6pm.
+func resolveWorkDayEnd(state LocalState, now time.Time) int64 {
+	if state.WorkDayEndsAt != "" {
+		if end, err := time.Parse(time.RFC3339, state.WorkDayEndsAt); err == nil && end.After(now) {
+			return end.Unix()
+		}
+	}
+	return todaySixPMAt(now).Unix()
+}
+
+func resolveWorkExpiration(now time.Time, postMessage bool, until string, state LocalState) (time.Time, error) {
 	if strings.TrimSpace(until) != "" {
 		return parseUntilTime(now, until)
 	}
 	if postMessage {
 		return now.Add(9 * time.Hour), nil
 	}
-	return todaySixPMAt(now), nil
+	// No explicit override: honor a stored future work-day end (e.g. set on an
+	// earlier work/start today, or edited in the state file), falling back to 6pm.
+	return time.Unix(resolveWorkDayEnd(state, now), 0), nil
 }
 
 func resolveLunchReturnTime(now time.Time, until string) (time.Time, error) {
